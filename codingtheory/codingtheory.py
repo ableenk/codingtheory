@@ -79,16 +79,13 @@ def code_minimum_distance(generating_polynomial, length, log=False):
 
     if log:
         print(f"cyclic code generating polynomial g(x) = {gen_poly}")
-        print(f"modulo polynomial P(x) = {mod_poly}")
+        print(f"cyclic code length = {length}")
 
     max_multiplier_degree = length - gen_poly.degree - 1
     codes_generator = nonzero_binary_codes_with_length_n_generator(max_multiplier_degree+1)
 
     min_codeword_weight = gen_poly.weight
     suitable_multiplier = BinaryPolynomial(next(codes_generator))
-
-    if log:
-        print(f"upper bound - {min_codeword_weight} with multiplier m(x) = {str(suitable_multiplier)}")
 
     for _ in range(1, 2**max_multiplier_degree-1):
         if min_codeword_weight == 2:
