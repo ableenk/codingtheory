@@ -5,9 +5,11 @@ import numpy as np
 from collections import Counter
 
 def is_polynomial(polynomial: str) -> bool:
+    if not isinstance(polynomial, str):
+        return False
     if polynomial == '':
         return False
-    symbols = '123456789+- ^x'
+    symbols = '0123456789+- ^x'
     for symbol in polynomial:
         if symbol not in symbols:
             return False
@@ -37,7 +39,6 @@ def get_polynomial_coefs(polynomial: str) -> list[int]:
         result_coefs[power] = 1
     return result_coefs
 
-
 def nonzero_binary_codes_with_length_n_generator(n):
     code = [0]*n
     code[-1] = 1
@@ -55,42 +56,57 @@ def nonzero_binary_codes_with_length_n_generator(n):
                 i = -1
             code[i] = 1
 
-
-
-class BasedException(Exception):
-    pass
-
 class BinaryPolynomial(galois.Poly): 
 
     def __init__(self, coeffs):
+        if is_polynomial(coeffs):
+            coeffs = get_polynomial_coefs(coeffs)
+        
         super().__init__(coeffs, field=galois.GF(2))
 
     @property
     def weight(self):
         return sum(self.coeffs.tolist())
     
-
-class Code():
-
-    def __init__(self, code, length=None):
-        code = code.strip()
-        if is_binary_code(code):
-            self.polynomial = BinaryPolynomial(list(map(int, list(code)[::-1])))
-            self.code = code
-            self.length = len(code)
-        elif is_polynomial(code):
-            coefs = get_polynomial_coefs(code)
-            self.polynomial = BinaryPolynomial(coefs)
-            self.code = ''.join(list(map(str, coefs[::-1])))
-            if length == None:
-                raise BasedException()
-            self.length = length
-    
-    def __repr__(self):
-        return f'Generating polynomial - {str(self.polynomial)}, length - {self.length}'
-    
-    def __str__(self):
-        return str(self.polynomial)
-    
 def get_codeword_weight(codeword: galois.Poly | BinaryPolynomial):
     return sum(codeword.coeffs.tolist())
+
+def code_minimum_distance(generating_polynomial, length, log=False):
+    modulo_polynomial = 'x^'+str(length)+'+1'
+
+    gen_poly = BinaryPolynomial(generating_polynomial)
+    mod_poly = BinaryPolynomial(modulo_polynomial)
+
+    if log:
+        print(f"cyclic code generating polynomial g(x) = {gen_poly}")
+        print(f"modulo polynomial P(x) = {mod_poly}")
+
+    max_multiplier_degree = length - gen_poly.degree - 1
+    codes_generator = nonzero_binary_codes_with_length_n_generator(max_multiplier_degree+1)
+
+    min_codeword_weight = gen_poly.weight
+    suitable_multiplier = BinaryPolynomial(next(codes_generator))
+
+    if log:
+        print(f"upper bound - {min_codeword_weight} with multiplier m(x) = {str(suitable_multiplier)}")
+
+    for _ in range(1, 2**max_multiplier_degree-1):
+        if min_codeword_weight == 2:
+            break
+
+        multiplier_coefs = next(codes_generator)
+        multiplier_polynomial = BinaryPolynomial(multiplier_coefs)
+        
+        codeword = multiplier_polynomial*gen_poly % mod_poly
+        codeword_weight = get_codeword_weight(codeword)
+        
+        if codeword_weight < min_codeword_weight:
+            min_codeword_weight = codeword_weight
+            suitable_multiplier = multiplier_polynomial
+    
+    minimum_distance = min_codeword_weight
+
+    if log:
+        print(f"code minimum distance d = {minimum_distance} with multiplier m(x) = {str(suitable_multiplier)}")
+
+    return minimum_distance, suitable_multiplier
