@@ -16,6 +16,5 @@ code_diameter, multiplier = ct.code_minimum_distance(generating_polynomial, leng
 ### Printed Solution
 ```
 cyclic code generating polynomial g(x) = x^4 + x^3 + x^2 + x + 1
-modulo polynomial P(x) = x^25 + 1
-upper bound - 5 with multiplier m(x) = 1
+cyclic code length = 25
 code minimum distance d = 2 with multiplier m(x) = x + 1
