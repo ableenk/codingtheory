@@ -1,3 +1,5 @@
+import galois
+
 import numpy as np 
 
 from collections import Counter
@@ -53,34 +55,19 @@ def nonzero_binary_codes_with_length_n_generator(n):
                 i = -1
             code[i] = 1
 
+
+
 class BasedException(Exception):
     pass
 
-class BinaryPolynomial(np.polynomial.Polynomial): 
-    
-    def __str__(self):
-        polynomial = ''
-        for degree in range(self.coef.shape[0]-1, -1, -1):
-            coef = self.coef[degree]
-            if isinstance(coef, float):
-                coef = round(coef, 3)
-            if coef != 0:
-                sign = '+' if coef > 0 else '-'
-                abs_coef = abs(coef)
-                if abs_coef == int(abs_coef):
-                    abs_coef = int(abs_coef)
-                polynomial += (polynomial != '')*f' {sign} ' +(polynomial == '' and sign == '-')*sign
-                if degree == 0:
-                    polynomial += str(abs_coef)
-                else:
-                    polynomial += (abs_coef != 1)*(str(abs_coef)) + 'x' + (degree > 1)*f'^{degree}'
-                degree -= 1
+class BinaryPolynomial(galois.Poly): 
 
-        return(polynomial if polynomial != '' else '0')
-    
+    def __init__(self, coeffs):
+        super().__init__(coeffs, field=galois.GF(2))
+
     @property
     def weight(self):
-        return self.coef.sum().astype(int)
+        return sum(self.coeffs.tolist())
     
 
 class Code():
@@ -104,5 +91,6 @@ class Code():
     
     def __str__(self):
         return str(self.polynomial)
-
-
+    
+def get_codeword_weight(codeword: galois.Poly | BinaryPolynomial):
+    return sum(codeword.coeffs.tolist())
