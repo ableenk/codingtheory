@@ -1,9 +1,5 @@
 import galois
 
-import numpy as np 
-
-from collections import Counter
-
 def is_polynomial(polynomial: str) -> bool:
     if not isinstance(polynomial, str):
         return False
