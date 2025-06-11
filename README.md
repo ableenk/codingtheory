@@ -3,7 +3,7 @@ At the moment you can find the minimum distance of cyclic code with length n and
 
 ## Example 1
 
-### Exercise
+### Task
 Find the minimum distance of cyclic code with length 25 and generating polynomial g(x) = x^4 + x^3 + x^2 + x + 1.
 
 ### Code
